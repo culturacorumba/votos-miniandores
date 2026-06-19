@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Voto Popular — Concurso de Mini Andores</title>
+  <title>Voto Popular — Concurso de Miniandores</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -219,7 +219,7 @@
 
 <header>
   <p class="header-eyebrow">Arraial do Banho de São João · Corumbá 2026</p>
-  <h1>Concurso de Mini Andores<span>Voto Popular</span></h1>
+  <h1>Concurso de Miniandores<span>Voto Popular</span></h1>
   <p class="header-sub">Escolha seu mini andor favorito e registre seu voto</p>
 </header>
 <div class="fita"></div>
@@ -229,7 +229,7 @@
   <div class="fechado-box">
     <div class="fechado-icone">🕯️</div>
     <h2>A votação está encerrada no momento</h2>
-    <p>A votação popular do Concurso de Mini Andores acontece durante o período da exposição, no Porto de Corumbá.</p>
+    <p>A votação popular do Concurso de Miniandores acontece durante o período da exposição, no Porto de Corumbá.</p>
     <p class="horario">MENSAGEM_RETORNO</p>
   </div>
 </div>
@@ -257,7 +257,7 @@
   <div class="categoria-secao">
     <div class="categoria-header">
       <span class="categoria-badge">Concurso</span>
-      <span class="categoria-titulo">Mini Andores</span>
+      <span class="categoria-titulo">Miniandores</span>
     </div>
     <p class="section-sub">Selecione o mini andor que você deseja votar</p>
     <div class="andores-grid" id="gridMiniAndores"></div>
@@ -272,7 +272,7 @@
       <!-- Preview do mini andor escolhido -->
       <div class="preview-votos">
         <div class="preview-item vazio" id="previewAndor">
-          <span class="preview-tag">Mini Andor</span> Nenhum selecionado
+          <span class="preview-tag">Miniandor</span> Nenhum selecionado
         </div>
       </div>
 
@@ -299,7 +299,7 @@
 
 </div><!-- /conteudo-votacao -->
 
-<footer>Fundação de Cultura de Corumbá · Concurso de Mini Andores — Voto Popular</footer>
+<footer>Fundação de Cultura de Corumbá · Concurso de Miniandores — Voto Popular</footer>
 
 <script>
   // ════════════════════════════════════════════════════════════
@@ -373,7 +373,7 @@
 
       const previewEl = document.getElementById('previewAndor');
       previewEl.className = 'preview-item preenchido';
-      previewEl.innerHTML = `<span class="preview-tag">Mini Andor</span> ${id} — ${nome}`;
+      previewEl.innerHTML = `<span class="preview-tag">Miniandor</span> ${id} — ${nome}`;
 
       document.getElementById('step1').className = 'step concluido';
       document.getElementById('step2').className = 'step ativo';
