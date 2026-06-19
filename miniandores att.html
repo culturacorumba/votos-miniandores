@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voto Popular — Concurso de Mini Andores</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --vermelho:        #C0282E;
+      --vermelho-escuro: #8B1A1E;
+      --branco:          #FAFAF7;
+      --creme:           #F0EBE1;
+      --cinza-leve:      #E5DDD0;
+      --texto:           #1A1208;
+      --texto-suave:     #5C4A30;
+      --destaque:        #7B3F00;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--branco); color: var(--texto); min-height: 100vh; }
+
+    /* HEADER */
+    header {
+      background: var(--vermelho);
+      padding: 2.5rem 1.5rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(45deg, transparent, transparent 18px, rgba(255,255,255,0.04) 18px, rgba(255,255,255,0.04) 20px);
+      pointer-events: none;
+    }
+    .header-eyebrow { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.7); margin-bottom: 0.6rem; }
+    header h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 6vw, 3rem); font-weight: 900; color: #fff; line-height: 1.1; margin-bottom: 0.4rem; }
+    header h1 span { display: block; font-size: clamp(1rem, 3vw, 1.4rem); font-weight: 700; color: rgba(255,255,255,0.85); margin-top: 0.2rem; }
+    .header-sub { color: rgba(255,255,255,0.75); font-size: 0.85rem; margin-top: 0.6rem; }
+    .fita { height: 8px; background: repeating-linear-gradient(90deg, var(--vermelho) 0px, var(--vermelho) 20px, #fff 20px, #fff 40px); }
+
+    /* FECHADO */
+    #tela-fechada {
+      display: none;
+      max-width: 480px;
+      margin: 3rem auto;
+      padding: 0 1rem;
+      text-align: center;
+    }
+    .fechado-box {
+      background: var(--creme);
+      border: 1px solid var(--cinza-leve);
+      border-radius: 8px;
+      padding: 2.5rem 2rem;
+    }
+    .fechado-icone { font-size: 2.5rem; margin-bottom: 1rem; }
+    .fechado-box h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--texto); }
+    .fechado-box p { font-size: 0.88rem; color: var(--texto-suave); line-height: 1.6; }
+    .fechado-box .horario { margin-top: 1rem; font-weight: 600; color: var(--vermelho-escuro); font-size: 0.92rem; }
+
+    /* INSTRUÇÃO */
+    .instrucao { background: var(--creme); border-bottom: 1px solid var(--cinza-leve); padding: 1rem 1.5rem; text-align: center; font-size: 0.88rem; color: var(--texto-suave); }
+    .instrucao strong { color: var(--vermelho-escuro); }
+
+    /* PROGRESSO */
+    .progresso-bar {
+      max-width: 480px;
+      margin: 1.5rem auto 0;
+      padding: 0 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    .step {
+      flex: 1;
+      text-align: center;
+      position: relative;
+    }
+    .step::after {
+      content: '';
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      width: 100%;
+      height: 2px;
+      background: var(--cinza-leve);
+      z-index: 0;
+    }
+    .step:last-child::after { display: none; }
+    .step-circulo {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 2px solid var(--cinza-leve);
+      background: var(--branco);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--texto-suave);
+      position: relative;
+      z-index: 1;
+      transition: all 0.2s;
+    }
+    .step.ativo .step-circulo { border-color: var(--vermelho); background: var(--vermelho); color: #fff; }
+    .step.concluido .step-circulo { border-color: #2A8B2A; background: #2A8B2A; color: #fff; }
+    .step-label { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--texto-suave); margin-top: 0.3rem; display: block; }
+    .step.ativo .step-label { color: var(--vermelho); }
+
+    /* GRADE DE MINIANDORES */
+    #conteudo-votacao { display: none; }
+
+    .categoria-secao { max-width: 800px; margin: 0 auto; padding: 2rem 1rem 1rem; }
+    .categoria-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--cinza-leve);
+    }
+    .categoria-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      background: #F5EBD8;
+      color: var(--destaque);
+      border: 1px solid #D4B896;
+    }
+    .categoria-titulo { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; color: var(--texto); }
+    .section-sub { font-size: 0.78rem; color: var(--texto-suave); margin-top: -0.5rem; margin-bottom: 1rem; }
+
+    .andores-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 0.75rem; }
+    .andor-card {
+      border: 2px solid var(--cinza-leve);
+      border-radius: 6px;
+      padding: 1rem 0.75rem 0.85rem;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, transform 0.12s;
+      background: #fff;
+      text-align: center;
+      position: relative;
+      user-select: none;
+      min-height: 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .andor-card:hover { transform: translateY(-2px); border-color: var(--destaque); }
+    .andor-card.selecionado { border-color: var(--destaque); background: #FBF5EE; }
+    .andor-card.selecionado::after { content: '✓'; position: absolute; top: 6px; right: 8px; font-size: 0.85rem; font-weight: 700; color: var(--destaque); }
+    .andor-numero { font-family: 'Playfair Display', serif; font-size: 0.82rem; font-weight: 700; color: #9A7D5A; line-height: 1.25; margin-bottom: 0.3rem; transition: color 0.15s; }
+    .andor-card.selecionado .andor-numero { color: var(--destaque); }
+    .andor-nome { font-size: 0.62rem; font-weight: 500; color: var(--texto); line-height: 1.3; }
+
+    /* FORM */
+    .form-section { max-width: 480px; margin: 1.5rem auto 0; padding: 0 1rem 3rem; }
+    .form-box { background: var(--creme); border: 1px solid var(--cinza-leve); border-radius: 8px; padding: 1.5rem; }
+    .form-box h2 { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .form-box > p { font-size: 0.8rem; color: var(--texto-suave); margin-bottom: 1.2rem; line-height: 1.5; }
+
+    .preview-votos { margin-bottom: 1.2rem; }
+    .preview-item {
+      background: #fff;
+      border-radius: 5px;
+      padding: 0.55rem 0.9rem;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .preview-item.vazio { color: var(--texto-suave); font-style: italic; border: 1.5px solid var(--cinza-leve); }
+    .preview-item.preenchido { border: 1.5px solid var(--destaque); color: var(--destaque); font-weight: 600; }
+    .preview-tag { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.7; }
+
+    .field { margin-bottom: 1rem; }
+    .field-label { display: block; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--texto-suave); margin-bottom: 0.35rem; }
+    .field input { width: 100%; padding: 0.72rem 0.85rem; border: 2px solid var(--cinza-leve); border-radius: 5px; font-size: 0.9rem; font-family: 'Inter', sans-serif; background: #fff; color: var(--texto); outline: none; transition: border-color 0.15s; }
+    .field input:focus { border-color: var(--vermelho); }
+    .field input.invalido { border-color: #C0282E; background: #FFF5F5; }
+    .field input.valido   { border-color: #2A8B2A; background: #F5FFF5; }
+    .field-hint { font-size: 0.72rem; margin-top: 0.3rem; color: var(--texto-suave); min-height: 1rem; }
+    .field-hint.erro { color: #C0282E; }
+    .field-hint.ok   { color: #2A8B2A; }
+
+    .lgpd-notice { background: #fff; border: 1px solid var(--cinza-leve); border-radius: 5px; padding: 0.7rem 0.9rem; font-size: 0.72rem; color: var(--texto-suave); line-height: 1.5; margin-bottom: 1rem; }
+    .lgpd-notice strong { color: var(--texto); }
+
+    .btn-votar { width: 100%; padding: 0.85rem; background: var(--vermelho); color: #fff; font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 700; letter-spacing: 0.04em; border: none; border-radius: 5px; cursor: pointer; transition: background 0.15s, opacity 0.15s; }
+    .btn-votar:hover:not(:disabled) { background: var(--vermelho-escuro); }
+    .btn-votar:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    #mensagem { margin-top: 1rem; padding: 0.9rem 1rem; border-radius: 5px; font-size: 0.85rem; font-weight: 500; display: none; line-height: 1.5; }
+    #mensagem.sucesso    { background: #EDF7ED; color: #2A6B2A; border: 1px solid #B2D9B2; display: block; }
+    #mensagem.erro       { background: #FDF0F0; color: #8B1A1E; border: 1px solid #F0BCBC; display: block; }
+    #mensagem.carregando { background: var(--creme); color: var(--texto-suave); border: 1px solid var(--cinza-leve); display: block; }
+
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    footer { text-align: center; padding: 1.5rem 1rem; font-size: 0.72rem; color: var(--cinza-leve); border-top: 1px solid var(--cinza-leve); }
+
+    @media (max-width: 420px) {
+      .andores-grid { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+      .andor-card { padding: 0.7rem 0.4rem; }
+      .andor-numero { font-size: 0.72rem; }
+      .andor-nome { font-size: 0.58rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <p class="header-eyebrow">Arraial do Banho de São João · Corumbá 2026</p>
+  <h1>Concurso de Mini Andores<span>Voto Popular</span></h1>
+  <p class="header-sub">Escolha seu mini andor favorito e registre seu voto</p>
+</header>
+<div class="fita"></div>
+
+<!-- TELA DE VOTAÇÃO FECHADA -->
+<div id="tela-fechada">
+  <div class="fechado-box">
+    <div class="fechado-icone">🕯️</div>
+    <h2>A votação está encerrada no momento</h2>
+    <p>A votação popular do Concurso de Mini Andores acontece durante o período da exposição, no Porto de Corumbá.</p>
+    <p class="horario">MENSAGEM_RETORNO</p>
+  </div>
+</div>
+
+<!-- CONTEÚDO DA VOTAÇÃO -->
+<div id="conteudo-votacao">
+
+  <div class="instrucao">
+    <strong>Como votar:</strong> escolha um mini andor, preencha seus dados e confirme. <strong>Um voto por CPF.</strong>
+  </div>
+
+  <!-- PROGRESSO -->
+  <div class="progresso-bar">
+    <div class="step ativo" id="step1">
+      <div class="step-circulo">1</div>
+      <span class="step-label">Selecionar</span>
+    </div>
+    <div class="step" id="step2">
+      <div class="step-circulo">2</div>
+      <span class="step-label">Confirmar</span>
+    </div>
+  </div>
+
+  <!-- GRADE DE MINIANDORES -->
+  <div class="categoria-secao">
+    <div class="categoria-header">
+      <span class="categoria-badge">Concurso</span>
+      <span class="categoria-titulo">Mini Andores</span>
+    </div>
+    <p class="section-sub">Selecione o mini andor que você deseja votar</p>
+    <div class="andores-grid" id="gridMiniAndores"></div>
+  </div>
+
+  <!-- FORMULÁRIO -->
+  <div class="form-section">
+    <div class="form-box">
+      <h2>Confirmar voto</h2>
+      <p>Preencha seus dados para registrar. Cada CPF pode votar uma única vez.</p>
+
+      <!-- Preview do mini andor escolhido -->
+      <div class="preview-votos">
+        <div class="preview-item vazio" id="previewAndor">
+          <span class="preview-tag">Mini Andor</span> Nenhum selecionado
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="nascimento">Data de nascimento</label>
+        <input type="date" id="nascimento" />
+        <p class="field-hint" id="hintNascimento"></p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="cpf">CPF</label>
+        <input type="text" id="cpf" placeholder="000.000.000-00" maxlength="14" inputmode="numeric" />
+        <p class="field-hint" id="hintCpf"></p>
+      </div>
+
+      <div class="lgpd-notice">
+        <strong>Uso dos dados:</strong> sua data de nascimento e CPF são coletados exclusivamente para garantir a lisura do concurso, conforme a Lei nº 13.709/2018 (LGPD). O CPF será armazenado de forma parcialmente mascarada e não será compartilhado com terceiros.
+      </div>
+
+      <button class="btn-votar" id="btnVotar" disabled onclick="enviarVoto()">Registrar meu voto</button>
+      <div id="mensagem"></div>
+    </div>
+  </div>
+
+</div><!-- /conteudo-votacao -->
+
+<footer>Fundação de Cultura de Corumbá · Concurso de Mini Andores — Voto Popular</footer>
+
+<script>
+  // ════════════════════════════════════════════════════════════
+  //  ✏️  CONFIGURAÇÃO — edite apenas esta seção
+  // ════════════════════════════════════════════════════════════
+
+  // URL gerada ao publicar o Apps Script como Web App
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz3X61p1bXrT-5ltH5JC_FNzbPL2m9pTlJNXmasWeOoeGSHm069I-vc3n5aPb_aTXFJxA/exec";
+
+  // true  = votação aberta / false = fechada
+  const VOTACAO_ABERTA = true;
+
+  // Mensagem exibida quando fechada
+  const MENSAGEM_FECHADA = "Volte amanhã às 19h para votar.";
+
+  // Lista de Mini Andores (numerados 01–12)
+  const MINIANDORES = [
+    "Menino São João",
+    "São João Pantaneiro, Tradição e Fé",
+    "Viva São João Batista! Amor, fé e devoção",
+    "Carruagem de São João Pantaneiro",
+    "São João nas Águas do Pantanal",
+    "São João Batista, Amor e Fé!",
+    "Fé e Tradição",
+    "São João na Margem do Rio Jordão",
+    "São João em Festa com Sorrisos",
+    "Entre Flores e Fé",
+    "São João do Josué",
+    "São João Rumo ao Hexa",
+  ];
+
+  // Nomes dos concorrentes (mesma ordem dos andores acima)
+  const CONCORRENTES_MINI = [
+    "Kauã Rafael Ferreira Silverio",
+    "Sofia Nunes Pinto",
+    "Arthur Rodrigo de Oliveira Magalhães",
+    "Maria Vitória de Oliveira Mendes dos Santos",
+    "Luana Yara de Oliveira Mendes",
+    "Murylo Estevo Araujo",
+    "Lucas Samuel Gama",
+    "Antonio Benedito dos Santos Neto",
+    "Anthony Davi Oliveira da Silva",
+    "Clarice Winkler do Nascimento",
+    "Josué Petrick Andrade Rodrigues Miranda",
+    "Enzo Raphael Leite Medina",
+  ];
+
+  // ════════════════════════════════════════════════════════════
+
+  if (!VOTACAO_ABERTA) {
+    document.getElementById('tela-fechada').style.display = 'block';
+    document.getElementById('tela-fechada').querySelector('.horario').textContent = MENSAGEM_FECHADA;
+  } else {
+    document.getElementById('conteudo-votacao').style.display = 'block';
+  }
+
+  let selecionado = null;
+
+  // Renderiza a grade de miniandores
+  const grid = document.getElementById('gridMiniAndores');
+  MINIANDORES.forEach((nome, i) => {
+    const id = String(i + 1).padStart(2, '0');
+    const concorrente = CONCORRENTES_MINI[i];
+    const card = document.createElement('div');
+    card.className = 'andor-card';
+    card.innerHTML = `<div class="andor-numero">${nome}</div><div class="andor-nome">${concorrente}</div>`;
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.andor-card').forEach(c => c.classList.remove('selecionado'));
+      card.classList.add('selecionado');
+      selecionado = { num: id, nome };
+
+      const previewEl = document.getElementById('previewAndor');
+      previewEl.className = 'preview-item preenchido';
+      previewEl.innerHTML = `<span class="preview-tag">Mini Andor</span> ${id} — ${nome}`;
+
+      document.getElementById('step1').className = 'step concluido';
+      document.getElementById('step2').className = 'step ativo';
+
+      validarFormulario();
+    });
+    grid.appendChild(card);
+  });
+
+  // CPF
+  function validarCPF(cpf) {
+    const n = cpf.replace(/\D/g, '');
+    if (n.length !== 11 || /^(\d)\1{10}$/.test(n)) return false;
+    let s = 0;
+    for (let i = 0; i < 9; i++) s += parseInt(n[i]) * (10 - i);
+    let r1 = (s * 10) % 11; if (r1 >= 10) r1 = 0;
+    if (r1 !== parseInt(n[9])) return false;
+    s = 0;
+    for (let i = 0; i < 10; i++) s += parseInt(n[i]) * (11 - i);
+    let r2 = (s * 10) % 11; if (r2 >= 10) r2 = 0;
+    return r2 === parseInt(n[10]);
+  }
+
+  function mascaraCPF(v) {
+    v = v.replace(/\D/g, '').slice(0, 11);
+    if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+    else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+    else if (v.length > 3) v = v.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+    return v;
+  }
+
+  const inputCpf        = document.getElementById('cpf');
+  const inputNascimento = document.getElementById('nascimento');
+  const hintCpf         = document.getElementById('hintCpf');
+  const hintNascimento  = document.getElementById('hintNascimento');
+
+  inputNascimento.max = new Date().toISOString().split('T')[0];
+  inputNascimento.min = '1900-01-01';
+
+  inputCpf.addEventListener('input', () => {
+    inputCpf.value = mascaraCPF(inputCpf.value);
+    const d = inputCpf.value.replace(/\D/g, '');
+    if (d.length < 11) { inputCpf.className = ''; hintCpf.textContent = ''; hintCpf.className = 'field-hint'; }
+    else if (validarCPF(d)) { inputCpf.className = 'valido'; hintCpf.textContent = '✓ CPF válido'; hintCpf.className = 'field-hint ok'; }
+    else { inputCpf.className = 'invalido'; hintCpf.textContent = 'CPF inválido — verifique os números'; hintCpf.className = 'field-hint erro'; }
+    validarFormulario();
+  });
+
+  inputNascimento.addEventListener('change', () => {
+    const val = inputNascimento.value;
+    if (!val) {
+      inputNascimento.className = '';
+      hintNascimento.textContent = '';
+      hintNascimento.className = 'field-hint';
+    } else {
+      const data = new Date(val + 'T00:00:00');
+      const hoje = new Date(); hoje.setHours(0,0,0,0);
+      if (data > hoje) {
+        inputNascimento.className = 'invalido';
+        hintNascimento.textContent = 'Data não pode ser no futuro';
+        hintNascimento.className = 'field-hint erro';
+      } else {
+        inputNascimento.className = 'valido';
+        hintNascimento.textContent = '';
+        hintNascimento.className = 'field-hint';
+      }
+    }
+    validarFormulario();
+  });
+
+  function validarFormulario() {
+    const nascimentoOk = inputNascimento.value && new Date(inputNascimento.value + 'T00:00:00') <= new Date();
+    const ok = selecionado
+            && validarCPF(inputCpf.value.replace(/\D/g, ''))
+            && nascimentoOk;
+    document.getElementById('btnVotar').disabled = !ok;
+  }
+
+  function mostrarMensagem(texto, tipo) {
+    const el = document.getElementById('mensagem');
+    el.className = tipo;
+    el.innerHTML = texto;
+  }
+
+  async function enviarVoto() {
+    const cpfDigits = inputCpf.value.replace(/\D/g, '');
+    const btn = document.getElementById('btnVotar');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Enviando…';
+    mostrarMensagem('Registrando seu voto, aguarde…', 'carregando');
+
+    const payload = {
+      nascimento:   inputNascimento.value,
+      cpf:          cpfDigits,
+      andor_numero: selecionado.num,
+      andor_nome:   selecionado.nome,
+      timestamp:    new Date().toLocaleString('pt-BR', { timeZone: 'America/Cuiaba' })
+    };
+
+    try {
+      const resp = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+      const data = await resp.json();
+
+      if (data.status === 'ok') {
+        mostrarMensagem('✅ Voto registrado com sucesso! Obrigado pela participação.', 'sucesso');
+        btn.textContent = 'Voto registrado ✓';
+        inputCpf.disabled = true;
+        inputNascimento.disabled = true;
+        document.querySelectorAll('.andor-card').forEach(c => {
+          c.style.pointerEvents = 'none';
+          c.style.opacity = c.classList.contains('selecionado') ? '1' : '0.4';
+        });
+      } else if (data.status === 'duplicado') {
+        mostrarMensagem('⚠️ Este CPF já foi usado para votar. Cada pessoa pode votar uma única vez.', 'erro');
+        btn.disabled = false;
+        btn.textContent = 'Registrar meu voto';
+      } else {
+        throw new Error(data.message || 'Erro desconhecido');
+      }
+    } catch (e) {
+      mostrarMensagem('❌ Não foi possível registrar o voto. Verifique sua conexão e tente novamente.', 'erro');
+      btn.disabled = false;
+      btn.textContent = 'Registrar meu voto';
+    }
+  }
+</script>
+</body>
+</html>
